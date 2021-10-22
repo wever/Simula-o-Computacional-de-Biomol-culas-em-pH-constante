@@ -1,0 +1,48 @@
+set dpx [atomselect top protein]
+pbc set {70 70 70} -all
+$dpx writepdb hen.pdb
+
+
+####################################
+
+package require psfgen
+
+topology ../COMMON/top_all36_prot.rtf
+topology ../COMMON/toppar_water_ions.str
+
+#topology top_all27_prot_lipid.inp
+
+pdbalias residue HIS HSE
+pdbalias atom ILE CD1 CD
+segment U {pdb hen.pdb}
+
+patch DISU U:64 U:80
+patch DISU U:76 U:94
+patch DISU U:30 U:115
+patch DISU U:6 U:127
+
+coordpdb hen.pdb U
+guesscoord
+
+writepsf hen.psf
+writepdb hen.pdb
+
+# solvatação
+
+package require solvate
+#solvate hen.psf hen.pdb -t 5 -o hen_solvate
+solvate hen.psf hen.pdb -minmax {{-35 -35 -35} {35 35 35}}  -o hen_solvate 
+
+autoionize -psf hen_solvate.psf -pdb hen_solvate.pdb -neutralize
+quit
+
+##################
+pbc wrap -center com -centersel "protein" -compound residue -all
+$all writepdb hen_solvate.pdb
+
+set all [atomselect top all]
+set prot [atomselect top protein]
+$all set beta 0
+$prot set beta 1
+$all writepdb fixprotein.pdb
+

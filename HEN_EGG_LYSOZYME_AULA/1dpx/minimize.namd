@@ -1,0 +1,87 @@
+###################################################
+# EQUILIBRATION SOLVATION ETHANOL
+###################################################
+
+
+# INPUT
+inputName               
+
+set temp                300.0
+
+parameters              ../COMMON/par_all36m_prot.prm
+parameters              ../COMMON/par_all22_prot.inp
+paraTypeCharmm          on
+
+set direction           forward
+
+exclude                 scaled1-4
+1-4scaling              1.0
+
+
+# TOPOLOGY
+
+structure               ${inputName}.psf
+
+# INITIAL CONDITIONS
+
+coordinates             ${inputName}.pdb
+temperature             $temp
+
+# OUTPUT FREQUENCIES
+
+outputenergies          100
+outputtiming            100
+outputpressure          100
+restartfreq             100
+XSTFreq                 100
+dcdFreq                 100
+
+# OUTPUT AND RESTART
+
+outputname              minimizing_${inputName}
+restartname             minimizing_${inputName}
+
+binaryoutput            yes
+binaryrestart           yes
+
+
+# PME
+
+PME                     yes
+PMETolerance            10e-6
+PMEInterpOrder          4
+
+PMEGridSpacing          1.0
+
+# Periodic Boundary Conditions
+cellBasisVector1    100.0    0.    0.
+cellBasisVector2     0.    100.0   0.
+cellBasisVector3     0.     0.   100.0
+cellOrigin           0.0    0.0   0.0
+
+
+# WRAP WATER FOR OUTPUT
+
+wrapAll                 on
+
+
+# CUT-OFFS
+
+switching               on
+switchdist               19.0
+cutoff                   20.0
+pairlistdist             20.0
+
+fixedAtoms on
+fixedAtomsFile fixprotein.pdb
+fixedAtomsCol B
+
+# RESPA PROPAGATOR
+
+timestep                2.0
+
+fullElectFrequency      2
+nonbondedFreq           1
+
+
+minimize 500
